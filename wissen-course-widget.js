@@ -107,30 +107,32 @@
 
   /**
    * Extrahiert den aktuellen Seiten-Slug aus der URL
-   * Erwartet Format: /wissen/[slug]/ oder /wissen/[slug]
+   * Erwartet Format: /wissen-[slug] (flache LearnWorlds URL-Struktur)
    *
    * @returns {string} - Der Seiten-Slug (oder leerer String wenn nicht gefunden)
    */
   function getCurrentPageSlug() {
     var pathname = window.location.pathname;
-    var wissenIndex = pathname.indexOf('/wissen/');
-
-    if (wissenIndex === -1) {
-      return '';
-    }
-
-    // Extrahiert den Teil nach /wissen/
-    var remaining = pathname.substring(wissenIndex + 8); // 8 = '/wissen/'.length
 
     // Entfernt trailing slash
-    remaining = remaining.replace(/\/$/, '');
+    pathname = pathname.replace(/\/$/, '');
 
-    // Wenn leer (ist /wissen/ Hub-Seite), gibt leeren String zurück
-    if (!remaining) {
+    // Extrahiert den letzten Pfad-Abschnitt (z.B. "wissen-depression" aus "/wissen-depression")
+    var segments = pathname.split('/');
+    var lastSegment = segments[segments.length - 1];
+
+    // Prüft ob der Slug mit "wissen-" beginnt
+    if (lastSegment.indexOf('wissen-') === 0) {
+      // Entfernt das "wissen-" Präfix um den Störungsbild-Slug zu erhalten
+      return lastSegment.substring(7); // 7 = 'wissen-'.length
+    }
+
+    // Wenn die Seite genau "/wissen" ist (Hub-Seite), gibt leeren String zurück
+    if (lastSegment === 'wissen') {
       return '';
     }
 
-    return remaining;
+    return '';
   }
 
   /**
@@ -195,7 +197,7 @@
   function showFallbackMessage(container) {
     var fallbackHTML = '<div class="wissen-course-fallback">' +
       '<p>Für diese Seite sind derzeit keine Kurse verfügbar.</p>' +
-      '<a href="/wissen/" class="wissen-fallback-link">Zu allen Kursangeboten</a>' +
+      '<a href="/wissen" class="wissen-fallback-link">Zu allen Kursangeboten</a>' +
       '</div>';
 
     container.innerHTML = fallbackHTML;
